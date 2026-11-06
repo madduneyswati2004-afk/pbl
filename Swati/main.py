@@ -139,6 +139,10 @@ def add_event(events):
     if capacity < 1:
         raise ValueError("Capacity must be at least 1.")
 
+    from datetime import datetime as dt
+    if dt.strptime(event_date, "%Y-%m-%d").date() < date.today():
+        raise ValueError("Cannot create an event in the past.")
+
     events[event_id] = Event(
         event_id, name, event_date, venue, capacity
     )

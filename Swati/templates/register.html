@@ -23,11 +23,13 @@
         <select name="event_id" required>
           <option value="">-- Select Event --</option>
           {% for eid, e in events.items() %}
+          {% set full = reg_count(e.event_id, registrations) >= e.max_participants %}
+          {% set over = is_event_over(e) %}
           <option value="{{ e.event_id }}"
-            {% if reg_count(e.event_id, registrations) >= e.max_participants %}disabled{% endif %}>
+            {% if full or over %}disabled{% endif %}>
             {{ e.event_id }} — {{ e.name }}
             ({{ reg_count(e.event_id, registrations) }}/{{ e.max_participants }})
-            {% if reg_count(e.event_id, registrations) >= e.max_participants %}[FULL]{% endif %}
+            {% if over %}[COMPLETED]{% elif full %}[FULL]{% endif %}
           </option>
           {% endfor %}
         </select>
@@ -81,4 +83,3 @@
 </div>
 
 {% endblock %}
-

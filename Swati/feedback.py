@@ -8,6 +8,24 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
 
+# ── Shared professional style ──
+BAR_COLOR = "#7C6FF7"
+BG_COLOR = "#F0F0F0"
+
+def _apply_style():
+    plt.rcParams.update({
+        "font.family": "sans-serif",
+        "font.size": 12,
+        "axes.spines.top": False,
+        "axes.spines.right": False,
+        "axes.spines.left": True,
+        "axes.spines.bottom": True,
+        "figure.facecolor": BG_COLOR,
+        "axes.facecolor": BG_COLOR,
+        "axes.edgecolor": "#444444",
+    })
+
+
 class FeedbackAnalyzer:
     def __init__(self, feedback_file, events, registrations):
         self.feedback_file = feedback_file
@@ -104,25 +122,7 @@ class FeedbackAnalyzer:
     def _generate_graphs(self, df):
         """Generate all three professional-quality graphs."""
         os.makedirs("graphs", exist_ok=True)
-
-        # ── Colour palette ──
-        COLORS = [
-            "#4F46E5", "#06B6D4", "#10B981", "#F59E0B",
-            "#EF4444", "#8B5CF6", "#EC4899", "#14B8A6",
-        ]
-        STAR_COLORS = [
-            "#EF4444", "#F97316", "#FBBF24", "#34D399", "#10B981"
-        ]
-
-        # Apply clean style
-        plt.rcParams.update({
-            "font.family": "sans-serif",
-            "font.size": 11,
-            "axes.spines.top": False,
-            "axes.spines.right": False,
-            "figure.facecolor": "white",
-            "axes.facecolor": "white",
-        })
+        _apply_style()
 
         # ── Graph 1: Average Rating by Event (Bar Chart) ──
         averages = df.groupby("event_id")["rating"].mean()
@@ -131,66 +131,53 @@ class FeedbackAnalyzer:
             for eid in averages.index
         ]
         n = len(labels)
-        bar_w = min(0.5, 0.5 / max(1, 4 - n))
-        colors = COLORS[:n]
+        bar_w = max(0.35, 0.6 / max(1, n))
 
-        fig1, ax1 = plt.subplots(figsize=(max(6, n * 2.2), 5))
+        fig1, ax1 = plt.subplots(figsize=(max(7, n * 2), 5))
         x = np.arange(n)
-        bars1 = ax1.bar(x, averages.values, width=bar_w,
-                        color=colors, edgecolor="white", linewidth=1.2,
-                        zorder=3)
-        for bar, val in zip(bars1, averages.values):
-            ax1.text(bar.get_x() + bar.get_width() / 2,
-                     bar.get_height() + 0.12,
-                     f"{val:.2f}", ha="center", va="bottom",
-                     fontsize=13, fontweight="bold", color="#1e293b")
+        ax1.bar(x, averages.values, width=bar_w,
+                color=BAR_COLOR, edgecolor="none", zorder=3)
         ax1.set_xticks(x)
-        ax1.set_xticklabels(labels, fontsize=12, fontweight="600")
-        ax1.set_ylim(0, 5.8)
+        ax1.set_xticklabels(labels, fontsize=12, fontweight="bold")
+        ax1.set_ylim(0, 5.5)
         ax1.set_yticks([0, 1, 2, 3, 4, 5])
-        ax1.set_ylabel("Average Rating", fontsize=12, fontweight="600")
-        ax1.set_xlabel("Event", fontsize=12, fontweight="600")
+        ax1.set_ylabel("Average Rating", fontsize=13, fontweight="bold")
+        ax1.set_xlabel("Event", fontsize=13, fontweight="bold")
         ax1.set_title("Average Feedback Rating by Event",
-                      fontsize=15, fontweight="bold", pad=15)
-        ax1.yaxis.grid(True, linestyle="--", alpha=0.4, zorder=0)
+                      fontsize=15, fontweight="bold", pad=12)
+        ax1.yaxis.grid(True, linestyle="--", alpha=0.5, color="#cccccc",
+                       zorder=0)
         ax1.set_axisbelow(True)
         fig1.tight_layout()
-        fig1.savefig("graphs/average_ratings.png", dpi=150)
+        fig1.savefig("graphs/average_ratings.png", dpi=150,
+                     facecolor=BG_COLOR)
         plt.close(fig1)
 
-        # ── Graph 2: Rating Distribution (Bar-style Histogram) ──
+        # ── Graph 2: Distribution of Feedback Ratings ──
         rating_counts = df["rating"].value_counts().sort_index()
         all_ratings = [1, 2, 3, 4, 5]
         counts_list = [int(rating_counts.get(r, 0)) for r in all_ratings]
+        star_labels = ["1 Star", "2 Star", "3 Star", "4 Star", "5 Star"]
 
         fig2, ax2 = plt.subplots(figsize=(7, 5))
         x2 = np.arange(5)
-        bars2 = ax2.bar(x2, counts_list, width=0.5,
-                        color=STAR_COLORS, edgecolor="white",
-                        linewidth=1.2, zorder=3)
-        for bar, val in zip(bars2, counts_list):
-            if val > 0:
-                ax2.text(bar.get_x() + bar.get_width() / 2,
-                         bar.get_height() + 0.08,
-                         str(val), ha="center", va="bottom",
-                         fontsize=13, fontweight="bold", color="#1e293b")
+        ax2.bar(x2, counts_list, width=0.55,
+                color=BAR_COLOR, edgecolor="none", zorder=3)
         ax2.set_xticks(x2)
-        ax2.set_xticklabels(
-            ["\u2605 1\nVery Poor", "\u2605 2\nPoor", "\u2605 3\nAverage",
-             "\u2605 4\nGood", "\u2605 5\nExcellent"],
-            fontsize=9, fontweight="600"
-        )
+        ax2.set_xticklabels(star_labels, fontsize=12, fontweight="bold")
         max_c = max(counts_list) if counts_list else 1
-        ax2.set_ylim(0, max_c + max(1, int(max_c * 0.35)))
+        ax2.set_ylim(0, max_c + max(1, int(max_c * 0.3)))
         ax2.yaxis.set_major_locator(ticker.MaxNLocator(integer=True))
-        ax2.set_ylabel("Number of Responses", fontsize=12, fontweight="600")
-        ax2.set_xlabel("Rating", fontsize=12, fontweight="600")
-        ax2.set_title("Feedback Rating Distribution",
-                      fontsize=15, fontweight="bold", pad=15)
-        ax2.yaxis.grid(True, linestyle="--", alpha=0.4, zorder=0)
+        ax2.set_ylabel("Number of Responses", fontsize=13, fontweight="bold")
+        ax2.set_xlabel("Rating", fontsize=13, fontweight="bold")
+        ax2.set_title("Distribution of Feedback Ratings",
+                      fontsize=15, fontweight="bold", pad=12)
+        ax2.yaxis.grid(True, linestyle="--", alpha=0.5, color="#cccccc",
+                       zorder=0)
         ax2.set_axisbelow(True)
         fig2.tight_layout()
-        fig2.savefig("graphs/rating_histogram.png", dpi=150)
+        fig2.savefig("graphs/rating_histogram.png", dpi=150,
+                     facecolor=BG_COLOR)
         plt.close(fig2)
 
         # ── Graph 3: Event-wise Participation ──
@@ -204,32 +191,27 @@ class FeedbackAnalyzer:
         p_labels = [self.events[eid].name.title() for eid in participation]
         p_values = list(participation.values())
         n3 = len(p_labels)
-        bar_w3 = min(0.5, 0.5 / max(1, 4 - n3))
-        colors3 = COLORS[:n3]
+        bar_w3 = max(0.35, 0.6 / max(1, n3))
 
-        fig3, ax3 = plt.subplots(figsize=(max(6, n3 * 2.2), 5))
+        fig3, ax3 = plt.subplots(figsize=(max(7, n3 * 2), 5))
         x3 = np.arange(n3)
-        bars3 = ax3.bar(x3, p_values, width=bar_w3,
-                        color=colors3, edgecolor="white",
-                        linewidth=1.2, zorder=3)
-        for bar, val in zip(bars3, p_values):
-            ax3.text(bar.get_x() + bar.get_width() / 2,
-                     bar.get_height() + 0.08,
-                     str(val), ha="center", va="bottom",
-                     fontsize=13, fontweight="bold", color="#1e293b")
+        ax3.bar(x3, p_values, width=bar_w3,
+                color=BAR_COLOR, edgecolor="none", zorder=3)
         ax3.set_xticks(x3)
-        ax3.set_xticklabels(p_labels, fontsize=12, fontweight="600")
+        ax3.set_xticklabels(p_labels, fontsize=12, fontweight="bold")
         max_p = max(p_values) if p_values else 1
-        ax3.set_ylim(0, max_p + max(1, int(max_p * 0.35)))
+        ax3.set_ylim(0, max_p + max(1, int(max_p * 0.3)))
         ax3.yaxis.set_major_locator(ticker.MaxNLocator(integer=True))
-        ax3.set_ylabel("Registered Students", fontsize=12, fontweight="600")
-        ax3.set_xlabel("Event", fontsize=12, fontweight="600")
+        ax3.set_ylabel("Registered Students", fontsize=13, fontweight="bold")
+        ax3.set_xlabel("Event", fontsize=13, fontweight="bold")
         ax3.set_title("Event-wise Participation",
-                      fontsize=15, fontweight="bold", pad=15)
-        ax3.yaxis.grid(True, linestyle="--", alpha=0.4, zorder=0)
+                      fontsize=15, fontweight="bold", pad=12)
+        ax3.yaxis.grid(True, linestyle="--", alpha=0.5, color="#cccccc",
+                       zorder=0)
         ax3.set_axisbelow(True)
         fig3.tight_layout()
-        fig3.savefig("graphs/event_participation.png", dpi=150)
+        fig3.savefig("graphs/event_participation.png", dpi=150,
+                     facecolor=BG_COLOR)
         plt.close(fig3)
 
         # Reset defaults

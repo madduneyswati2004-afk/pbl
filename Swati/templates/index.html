@@ -20,20 +20,41 @@
 </div>
 
 <div class="card">
-  <h2>Recent Events</h2>
+  <h2>All Events</h2>
   {% if events %}
   <table>
     <thead>
-      <tr><th>ID</th><th>Name</th><th>Date</th><th>Venue</th><th>Seats</th></tr>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Date</th>
+        <th>Venue</th>
+        <th>Seats</th>
+        <th>Status</th>
+      </tr>
     </thead>
     <tbody>
       {% for eid, e in events.items() %}
-      <tr>
+      {% set over = is_event_over(e) %}
+      <tr style="{% if over %}opacity:0.6;{% endif %}">
         <td>{{ e.event_id }}</td>
         <td>{{ e.name }}</td>
         <td>{{ e.date }}</td>
         <td>{{ e.venue }}</td>
         <td>{{ reg_count(e.event_id, registrations) }} / {{ e.max_participants }}</td>
+        <td>
+          {% if over %}
+          <span
+            style="background:#fee2e2;color:#991b1b;padding:.2rem .6rem;border-radius:12px;font-size:.8rem;font-weight:600;">
+            ✅ Completed
+          </span>
+          {% else %}
+          <span
+            style="background:#dcfce7;color:#166534;padding:.2rem .6rem;border-radius:12px;font-size:.8rem;font-weight:600;">
+            🟢 Upcoming
+          </span>
+          {% endif %}
+        </td>
       </tr>
       {% endfor %}
     </tbody>
@@ -47,4 +68,3 @@
 </div>
 
 {% endblock %}
-
