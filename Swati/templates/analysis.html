@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Analysis — Campus Events{% endblock %}
+{% block content %}
+
+<h1 style="margin-bottom:1.5rem;">📊 Feedback Analysis & Graphs</h1>
+
+{% if not has_data %}
+<div class="card empty-state">
+  <div class="icon">📊</div>
+  <p>No feedback data available yet. Collect some feedback first!</p>
+  <a href="{{ url_for('feedback_page') }}" class="btn btn-primary" style="margin-top:1rem;">Go to Feedback</a>
+</div>
+{% else %}
+
+<!-- Summary stats -->
+<div class="stats-grid">
+  {% for s in stats %}
+  <div class="stat-card">
+    <div class="number">{{ s.avg_rating }}</div>
+    <div class="label">{{ s.name }} — Avg Rating</div>
+    <div class="label" style="font-size:.75rem;margin-top:.25rem;">
+      {{ s.feedback_count }} feedback · {{ s.participant_count }} registered
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="card" style="margin-bottom:1.5rem;">
+  <h2>🏆 Highest Rated Event</h2>
+  <p style="font-size:1.1rem;">
+    <strong>{{ best_events | join(', ') }}</strong> — {{ "%.2f" | format(highest_avg) }}/5
+  </p>
+</div>
+
+<!-- Detailed table -->
+<div class="card">
+  <h2>Event-wise Statistics</h2>
+  <table>
+    <thead>
+      <tr><th>Event ID</th><th>Event Name</th><th>Avg Rating</th><th>Feedback Count</th><th>Participants</th></tr>
+    </thead>
+    <tbody>
+      {% for s in stats %}
+      <tr>
+        <td>{{ s.event_id }}</td>
+        <td><strong>{{ s.name }}</strong></td>
+        <td>{{ s.avg_rating }}</td>
+        <td>{{ s.feedback_count }}</td>
+        <td>{{ s.participant_count }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Graphs -->
+<div class="graph-grid">
+  <div class="card graph-card">
+    <h2>📊 Average Feedback Rating by Event (Bar Chart)</h2>
+    <img src="data:image/png;base64,{{ chart1 }}" alt="Average Rating Bar Chart">
+  </div>
+
+  <div class="card graph-card">
+    <h2>📈 Feedback Rating Distribution (Histogram)</h2>
+    <img src="data:image/png;base64,{{ chart2 }}" alt="Rating Distribution Histogram">
+  </div>
+
+  <div class="card graph-card">
+    <h2>👥 Event-wise Participation (Bar Chart)</h2>
+    <img src="data:image/png;base64,{{ chart3 }}" alt="Event Participation Graph">
+  </div>
+</div>
+
+{% endif %}
+
+{% endblock %}
+

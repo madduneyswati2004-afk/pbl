@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Registration — Campus Events{% endblock %}
+{% block content %}
+
+<h1 style="margin-bottom:1.5rem;">📝 Student Registration</h1>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+  <!-- Register -->
+  <div class="card">
+    <h2>Register for Event</h2>
+    <form method="post">
+      <div class="form-group">
+        <label>Student</label>
+        <select name="student_id" required>
+          <option value="">-- Select Student --</option>
+          {% for sid, s in students.items() %}
+          <option value="{{ s.student_id }}">{{ s.student_id }} — {{ s.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Event</label>
+        <select name="event_id" required>
+          <option value="">-- Select Event --</option>
+          {% for eid, e in events.items() %}
+          <option value="{{ e.event_id }}"
+            {% if reg_count(e.event_id, registrations) >= e.max_participants %}disabled{% endif %}>
+            {{ e.event_id }} — {{ e.name }}
+            ({{ reg_count(e.event_id, registrations) }}/{{ e.max_participants }})
+            {% if reg_count(e.event_id, registrations) >= e.max_participants %}[FULL]{% endif %}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-success">Register</button>
+    </form>
+  </div>
+
+  <!-- Cancel -->
+  <div class="card">
+    <h2>Cancel Registration</h2>
+    <form method="post" action="{{ url_for('cancel_registration') }}">
+      <div class="form-group">
+        <label>Student ID</label>
+        <input type="text" name="student_id" placeholder="e.g. 33" required>
+      </div>
+      <div class="form-group">
+        <label>Event ID</label>
+        <input type="text" name="event_id" placeholder="e.g. 009" required>
+      </div>
+      <button type="submit" class="btn btn-danger">Cancel Registration</button>
+    </form>
+  </div>
+</div>
+
+<!-- Current registrations -->
+<div class="card" style="margin-top:1.5rem;">
+  <h2>All Registrations</h2>
+  {% if reg_list %}
+  <table>
+    <thead>
+      <tr><th>Reg ID</th><th>Student</th><th>Event</th><th>Date</th></tr>
+    </thead>
+    <tbody>
+      {% for r in reg_list %}
+      <tr>
+        <td>{{ r.registration_id }}</td>
+        <td>{{ r.student_name }} ({{ r.student_id }})</td>
+        <td>{{ r.event_name }} ({{ r.event_id }})</td>
+        <td>{{ r.date }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <div class="icon">📝</div>
+    <p>No registrations yet.</p>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}
+

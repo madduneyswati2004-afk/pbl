@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Events — Campus Events{% endblock %}
+{% block content %}
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+  <h1>📅 Events</h1>
+  <a href="{{ url_for('add_event') }}" class="btn btn-primary">+ New Event</a>
+</div>
+
+{% if events %}
+<div class="card">
+  <table>
+    <thead>
+      <tr><th>ID</th><th>Name</th><th>Date</th><th>Venue</th><th>Capacity</th><th>Registered</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+      {% for eid, e in events.items() %}
+      {% set count = reg_count(e.event_id, registrations) %}
+      <tr>
+        <td>{{ e.event_id }}</td>
+        <td><strong>{{ e.name }}</strong></td>
+        <td>{{ e.date }}</td>
+        <td>{{ e.venue }}</td>
+        <td>{{ e.max_participants }}</td>
+        <td>
+          <span style="color:{% if count >= e.max_participants %}var(--danger){% else %}var(--success){% endif %}; font-weight:600;">
+            {{ count }} / {{ e.max_participants }}
+          </span>
+        </td>
+        <td>
+          <form method="post" action="{{ url_for('delete_event', event_id=e.event_id) }}" style="display:inline;"
+                onsubmit="return confirm('Delete event {{ e.name }}?')">
+            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="card empty-state">
+  <div class="icon">📅</div>
+  <p>No events yet.</p>
+</div>
+{% endif %}
+
+{% endblock %}
+

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Students — Campus Events{% endblock %}
+{% block content %}
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+  <h1>🎓 Students</h1>
+  <a href="{{ url_for('add_student') }}" class="btn btn-primary">+ Add Student</a>
+</div>
+
+{% if students %}
+<div class="card">
+  <table>
+    <thead>
+      <tr><th>ID</th><th>Name</th><th>Department</th><th>Email</th></tr>
+    </thead>
+    <tbody>
+      {% for sid, s in students.items() %}
+      <tr>
+        <td>{{ s.student_id }}</td>
+        <td><strong>{{ s.name }}</strong></td>
+        <td>{{ s.department }}</td>
+        <td>{{ s.email }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="card empty-state">
+  <div class="icon">🎓</div>
+  <p>No students yet.</p>
+</div>
+{% endif %}
+
+{% endblock %}
+

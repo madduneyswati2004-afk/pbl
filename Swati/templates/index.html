@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Campus Events{% endblock %}
+{% block content %}
+
+<h1 style="margin-bottom:1.5rem;">📋 Dashboard</h1>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="number">{{ events|length }}</div>
+    <div class="label">Total Events</div>
+  </div>
+  <div class="stat-card">
+    <div class="number">{{ students|length }}</div>
+    <div class="label">Total Students</div>
+  </div>
+  <div class="stat-card">
+    <div class="number">{{ registrations|length }}</div>
+    <div class="label">Registrations</div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Recent Events</h2>
+  {% if events %}
+  <table>
+    <thead>
+      <tr><th>ID</th><th>Name</th><th>Date</th><th>Venue</th><th>Seats</th></tr>
+    </thead>
+    <tbody>
+      {% for eid, e in events.items() %}
+      <tr>
+        <td>{{ e.event_id }}</td>
+        <td>{{ e.name }}</td>
+        <td>{{ e.date }}</td>
+        <td>{{ e.venue }}</td>
+        <td>{{ reg_count(e.event_id, registrations) }} / {{ e.max_participants }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <div class="icon">📅</div>
+    <p>No events yet. <a href="{{ url_for('add_event') }}">Create one!</a></p>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}
+

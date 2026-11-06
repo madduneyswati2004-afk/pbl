@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Add Student — Campus Events{% endblock %}
+{% block content %}
+
+<h1 style="margin-bottom:1.5rem;">➕ Add New Student</h1>
+
+<div class="card" style="max-width:600px;">
+  <form method="post">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Student ID</label>
+        <input type="text" name="student_id" placeholder="S001" required>
+      </div>
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" name="name" placeholder="John Doe" required>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Department</label>
+        <input type="text" name="department" placeholder="MCA" required>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" name="email" placeholder="john@university.edu" required>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Student</button>
+    <a href="{{ url_for('students_page') }}" class="btn btn-danger" style="margin-left:.5rem;">Cancel</a>
+  </form>
+</div>
+
+{% endblock %}
+

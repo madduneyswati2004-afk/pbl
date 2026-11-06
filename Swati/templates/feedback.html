@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Feedback — Campus Events{% endblock %}
+{% block content %}
+
+<h1 style="margin-bottom:1.5rem;">⭐ Collect Feedback</h1>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+  <!-- Submit feedback -->
+  <div class="card">
+    <h2>Submit Feedback</h2>
+    <form method="post">
+      <div class="form-group">
+        <label>Event</label>
+        <select name="event_id" required>
+          <option value="">-- Select Event --</option>
+          {% for eid, e in events.items() %}
+          <option value="{{ e.event_id }}">{{ e.event_id }} — {{ e.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Student ID</label>
+        <select name="student_id" required>
+          <option value="">-- Select Student --</option>
+          {% for sid, s in students.items() %}
+          <option value="{{ s.student_id }}">{{ s.student_id }} — {{ s.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Rating (1–5)</label>
+        <select name="rating" required>
+          <option value="">-- Rate --</option>
+          <option value="5">⭐⭐⭐⭐⭐ (5 — Excellent)</option>
+          <option value="4">⭐⭐⭐⭐ (4 — Good)</option>
+          <option value="3">⭐⭐⭐ (3 — Average)</option>
+          <option value="2">⭐⭐ (2 — Poor)</option>
+          <option value="1">⭐ (1 — Very Poor)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Comment (optional)</label>
+        <textarea name="comment" rows="3" placeholder="Your thoughts about the event…"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit Feedback</button>
+    </form>
+  </div>
+
+  <!-- Existing feedback -->
+  <div class="card">
+    <h2>Submitted Feedback</h2>
+    {% if fb_records %}
+    <table>
+      <thead>
+        <tr><th>Event</th><th>Student</th><th>Rating</th><th>Comment</th></tr>
+      </thead>
+      <tbody>
+        {% for fb in fb_records %}
+        <tr>
+          <td>{{ events[fb.event_id].name if fb.event_id in events else fb.event_id }}</td>
+          <td>{{ students[fb.student_id].name if fb.student_id in students else fb.student_id }}</td>
+          <td>{{ "⭐" * (fb.rating|int) }}</td>
+          <td>{{ fb.comment or "—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <div class="icon">⭐</div>
+      <p>No feedback submitted yet.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
+
